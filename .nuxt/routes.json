@@ -1,0 +1,23 @@
+[
+  {
+    "name": "indicacoes",
+    "path": "/indicacoes",
+    "component": "/usr/src/app/pages/indicacoes/index.vue",
+    "chunkName": "pages/indicacoes/index",
+    "_name": "_4e176f35"
+  },
+  {
+    "name": "inspire",
+    "path": "/inspire",
+    "component": "/usr/src/app/pages/inspire.vue",
+    "chunkName": "pages/inspire",
+    "_name": "_2ff6773a"
+  },
+  {
+    "name": "indicacoes-id",
+    "path": "/indicacoes/:id",
+    "component": "/usr/src/app/pages/indicacoes/_id.vue",
+    "chunkName": "pages/indicacoes/_id",
+    "_name": "_43b1badd"
+  }
+]
