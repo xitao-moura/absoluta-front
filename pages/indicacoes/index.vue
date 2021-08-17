@@ -7,316 +7,199 @@
         </v-card-title>
         <v-card-text>
           <v-data-table
+            :page="page"
+            :pageCount="numberOfPages"
             :headers="headers"
             :items="indicacoes"
-            sort-by="indicacoes"
-            class="elevation-1"
+            :options.sync="options"
+            :server-items-length="totalPassengers"
             :loading="loading"
+            class="elevation-1"
           >
-            <template v-slot:item.tipo_id="{ item }">
-              {{ getTipo(item.tipo_id) }}
+          
+            <template v-slot:item.status="{ item }">
+              <v-chip
+                :style="getColor(item.status.cor)"
+                dark
+              >
+                {{ item.status.nome }}
+              </v-chip>
             </template>
 
-            <template v-slot:item.site_id="{ item }">
-              {{ getSite(item.site_id) }}
+            <template v-slot:item.tipo="{ item }">
+              <v-chip
+                color="success"
+                dark
+              >
+                {{ getTipo(item.tipo.nome) }}
+              </v-chip>
             </template>
 
-            <template v-slot:item.status_id="{ item }">
-              {{ getStatus(item.status_id) }}
+            <template v-slot:item.telefone="{ item }">
+              {{ getTelefone(item) }}
             </template>
 
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:item.celular="{ item }">
+              {{ getCelular(item) }}
+            </template>
+
+            <template v-slot:item.cpf="{ item }">
+              {{ getCpf(item.cpf) }}
+            </template>
+
+            <template v-slot:item.cnpj="{ item }">
+              {{ getCnpj(item.cnpj) }}
+            </template>
+
+            <template v-slot:item.created="{ item }">
+              {{ getDate(item.created) }}
+            </template>
+
+            <template v-slot:item.acoes="{ item }">
               <v-icon
                 small
                 class="mr-2"
-                @click="editItem(item)"
+                @click="editarItem(item)"
               >
                 mdi-pencil
               </v-icon>
               <v-icon
                 small
-                @click="deleteItem(item)"
+                @click="deletarItem(item)"
               >
                 mdi-delete
               </v-icon>
             </template>
 
-            <template v-slot:top>
-              <v-toolbar
-                flat
-              >
-                <v-divider
-                  class="mx-4"
-                  inset
-                  vertical
-                ></v-divider>
-                <v-spacer></v-spacer>
-                <v-dialog
-                  v-model="dialog"
-                  max-width="500px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      color="primary"
-                      dark
-                      class="mb-2"
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      Nova indicação
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title>
-                      <span class="text-h5">{{ formTitle }}</span>
-                    </v-card-title>
-
-                    <v-card-text>
-                      <v-container>
-                        <v-row>
-                          <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="editedItem.name"
-                              label="Dessert name"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="editedItem.calories"
-                              label="Calories"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="editedItem.fat"
-                              label="Fat (g)"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="editedItem.carbs"
-                              label="Carbs (g)"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
-                          >
-                            <v-text-field
-                              v-model="editedItem.protein"
-                              label="Protein (g)"
-                            ></v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-card-text>
-
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="close"
-                      >
-                        Cancelar
-                      </v-btn>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="save"
-                      >
-                        Salvar
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                  <v-card>
-                    <v-card-title class="text-h5">Tem certeza de que deseja excluir este item?</v-card-title>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                      <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-                      <v-spacer></v-spacer>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-              </v-toolbar>
-            </template>
           </v-data-table>
         </v-card-text>
       </v-card>
     </v-col>
-    <v-dialog v-model="dialogDelete" max-width="500px">
-      <v-card>
-        <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-row>
 </template>
 <script>
+const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz')
   export default {
-    data: () => ({
-      dialog: false,
-      dialogDelete: false,
-      loading: true,
-      headers: [
-        {text: 'Id', value: 'id'},
-        {text: 'Status', value: 'status_id'},
-        {text: 'Tipo', value: 'tipo_id'},
-        {text: 'Site', value: 'site_id'},
-        {text: 'Nome', value: 'nome'},
-        {text: 'Email', value: 'email'},
-        {text: 'Actions', value: 'actions', sortable: false},
-      ],
-      indicacoes: [],
-      editedIndex: -1,
-      editedItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
-      },
-      defaultItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
-      }
-    }),
-    computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'Nova indicação' : 'Editar indicação'
-      },
+    data() {
+      return {
+        page: 0,
+        totalPassengers: 0,
+        numberOfPages: 0,
+        indicacoes: [],
+        pageNumber: 1,
+        loading: true,
+        options: {},
+        headers: [
+          { text: "Id", value: "id" },
+          { text: "Nome", value: "nome" },
+          { text: "Status", value: "status" },
+          { text: "Tipo", value: "tipo" },
+          { text: "Telefone", value: "telefone" },
+          { text: "Celular", value: "celular" },
+          { text: "Email", value: "email" },
+          { text: "Cpf", value: "cpf" },
+          { text: "Cnpj", value: "cnpj" },
+          { text: "Aniv. Apolice", value: "" },
+          { text: "Vigência", value: "" },
+          { text: "Atual", value: "" },
+          { text: "Cadastro", value: "created" },
+          { text: "Retorno", value: "" },
+          { text: "Ações", value: "acoes" },
+        ],
+      };
     },
     watch: {
-      dialog (val) {
-        val || this.close()
+      options: {
+        handler() {
+          this.readDataFromAPI();
+        },
       },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
-    },
-    created () {
-      this.initialize()
+      deep: true,
     },
     methods: {
-      initialize () {
-        this.getIndicacoes()
+      async readDataFromAPI() {
+        this.loading = true;
+        const { page, itemsPerPage } = this.options;
+        let pageNumber = page - 1;
+        await this.$api.$get(
+            "v1/indicacoes?size=" +
+              itemsPerPage +
+              "&page=" +
+              pageNumber
+          )
+          .then((response) => {
+            this.loading = false;
+            this.indicacoes = response.items;
+            this.totalPassengers = response.meta.totalItems;
+            this.numberOfPages = response.meta.totalPages;
+            this.pageNumber = response.meta.currentPage+1;
+          });
       },
-      async getIndicacoes(){
-        this.indicacoes = await this.$api.$get('v1/indicacoes')
-        this.loading = false
-        console.log(this.indicacoes)
+      getColor (cor) {
+        return "background:" + cor 
       },
-      getStatus(item){
-        if(item == 1){
-          return 'ATIVO'
-        } else if (item == 2) {
-          return 'INATIVO'
-        } else if (item == 3) {
-          return 'NOVO'
-        } else if (item == 4) {
-          return 'NA FILA'
-        } else if (item == 5) {
-          return 'EM CONTATO'
-        } else if (item == 6) {
-          return 'NEGOCIAÇÃO'
-        } else if (item == 7) {
-          return 'AGENDADO'
-        } else if (item == 8) {
-          return 'DESISTIU'
-        } else if (item == 9) {
-          return 'REPETIDA'
-        } else if (item == 10) {
-          return 'DELETADA'
-        } else if (item == 11) {
-          return 'VENDIDO'
-        } else if (item == 12) {
-          return 'INVÁLIDAS'
-        } else if (item == 19) {
-          return 'EM COTAÇÃO'
-        } else if (item == 21) {
-          return 'FECHADO'
-        } else if (item == 28) {
-          return 'NÃO QUER'
-        } else if (item == 37) {
-          return 'PRIORIDADE'
+      getTipo (tipo) {
+        return tipo.substr(0, 1).toUpperCase()
+      },
+      getTelefone(telefone){
+        if(telefone.telefone){
+          var length = telefone.telefone.length;
+          var telefoneFormatado;
+
+          if (length === 8) {
+          telefoneFormatado = '(' + telefone.ddd_telefone + ') ' + telefone.telefone.substring(0, 4) + '-' + telefone.telefone.substring(4, 8);
+          } else if (length === 9) {
+          telefoneFormatado = '(' + telefone.ddd_telefone + ') ' + telefone.telefone.substring(0, 5) + '-' + telefone.telefone.substring(5, 9);
+          }
+          return telefoneFormatado;
         }
       },
-      getTipo(item){
-        if (item == 11) {
-          return 'INDICAÇÃO'
-        } else if (item == 10) {
-          return 'MANUAL'
+      getCelular(celular){
+        if(celular.celular){
+          var length = celular.celular.length;
+          var telefoneFormatado;
+
+          if (length === 8) {
+          telefoneFormatado = '(' + celular.ddd_celular + ') ' + celular.celular.substring(0, 4) + '-' + celular.celular.substring(4, 8);
+          } else if (length === 9) {
+          telefoneFormatado = '(' + celular.ddd_celular + ') ' + celular.celular.substring(0, 5) + '-' + celular.celular.substring(5, 9);
+          }
+          return telefoneFormatado;
         }
       },
-      getSite(item){
-        if(item == 2){
-          return 'ABSOLUTA QUALICORP ORÇAMETO'
+      getCpf(cpf){
+        cpf = cpf.replace(/[^\d]/g, "");
+          return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      },
+      getCnpj(cnpj){
+        return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
+      },
+      getDate(date){
+        const a = new Date(date)
+        const zonedDate = utcToZonedTime(a)
+        const pattern = 'd/M/yyyy HH:mm'
+        return format(zonedDate, pattern)
+      },
+      editarItem(item){
+
+      },
+      deletarItem(item){
+
+      }
+    },
+    mounted() {
+      this.readDataFromAPI();
+    },
+  }
+</script>
+<style lang="scss">
+  table {
+    tbody {
+      tr {
+        td {
+          font-size: 14px !important;
         }
-      },
-      getProfissao(item){
-        this.editedIndex = this.indicacoes.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
-      },
-      editItem (item) {
-        this.editedIndex = this.indicacoes.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-      deleteItemConfirm () {
-        this.indicacooes.splice(this.editedIndex, 1)
-        this.closeDelete()
-      },
-      close () {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-      closeDelete () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.indicacooes[this.editedIndex], this.editedItem)
-        } else {
-          this.indicacooes.push(this.editedItem)
-        }
-        this.close()
       }
     }
   }
-</script>
+</style>
