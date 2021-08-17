@@ -197,7 +197,7 @@ const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz')
     tbody {
       tr {
         td {
-          font-size: 14px !important;
+          font-size: 12px !important;
         }
       }
     }
