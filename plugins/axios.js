@@ -4,7 +4,7 @@ const fs = require('fs')
 
 export default function ({ $axios }, inject) {
     const api = $axios.create({
-        baseURL:'http://localhost:4000/'
+        baseURL:'https://abs-api.gnis.com.br/'
     })
     inject('api', api)
 }
