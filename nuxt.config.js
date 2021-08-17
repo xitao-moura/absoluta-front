@@ -82,7 +82,7 @@ export default {
     }
   },
   server: {
-    port: 3001,
+    port: 4001,
     host: '0.0.0.0'
   }
 }
