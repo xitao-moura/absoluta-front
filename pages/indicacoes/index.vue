@@ -128,6 +128,7 @@ const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz')
               pageNumber
           )
           .then((response) => {
+            console.log(response)
             this.loading = false;
             this.indicacoes = response.items;
             this.totalPassengers = response.meta.totalItems;
@@ -181,7 +182,7 @@ const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz')
         return format(zonedDate, pattern)
       },
       editarItem(item){
-
+        this.$router.push({path: `indicacoes/${ item.id }`})
       },
       deletarItem(item){
 
@@ -201,5 +202,11 @@ const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz')
         }
       }
     }
+  }
+  .v-chip.v-size--default {
+    font-size: 10px;
+    height: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
   }
 </style>
